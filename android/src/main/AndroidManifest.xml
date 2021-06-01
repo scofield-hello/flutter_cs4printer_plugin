@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.chuangdun.flutter.plugin.cs4printer">
+
+  <application android:theme="@style/Theme.CS4Printer">
+    <activity
+      android:name=".PrintActivity"
+      android:exported="false" />
+  </application>
+
+</manifest>
