@@ -1,8 +1,8 @@
 name: CS4Printer
 description: A new flutter plugin project.
-version: 0.0.1
-author:
-homepage:
+version: 1.0.0
+author: Nick
+homepage: https://github.com/scofield-hello/flutter_cs4printer_plugin
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
