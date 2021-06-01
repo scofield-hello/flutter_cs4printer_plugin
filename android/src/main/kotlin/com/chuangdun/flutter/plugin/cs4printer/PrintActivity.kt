@@ -153,8 +153,9 @@ class PrintActivity : AppCompatActivity() {
             return
         } // msg id does not match, bail out now!
         val status = intent.getIntExtra(STATUS, -1)
+        val decodedStatus = decodeStatus(status)
         if (status != SUCCESS) {
-            log.append("${simpleDateFormat.format(Date())} 收到错误响应:").append(status).append("\r\n")
+            log.append("${simpleDateFormat.format(Date())} 收到错误响应:").append(decodedStatus).append("\r\n")
             mLogTextView.text = log.toString()
             return
         }
@@ -185,12 +186,13 @@ class PrintActivity : AppCompatActivity() {
             return
         } // msg id does not match, bail out now!
         val status = intent.getIntExtra(STATUS, -1)
+        val decodedStatus = decodeStatus(status)
         if (status != SUCCESS) {
-            log.append("${simpleDateFormat.format(Date())} 收到错误响应：").append(status).append("\r\n")
+            log.append("${simpleDateFormat.format(Date())} 收到错误响应：").append(decodedStatus).append("\r\n")
             mLogTextView.text = log.toString()
             return
         }
-        log.append("${simpleDateFormat.format(Date())} 收到任务响应：").append(status).append("\r\n")
+        log.append("${simpleDateFormat.format(Date())} 收到任务响应：").append(decodedStatus).append("\r\n")
         mLogTextView.text = log.toString()
         Log.d("MainActivity", "PrintJob successfully sent.")
     }
@@ -217,6 +219,17 @@ class PrintActivity : AppCompatActivity() {
             handleCreateJobResponse(intent)
         } else if (PRINT_JOB_RESPONSE == action) {
             handlePrintJobResponse(intent)
+        }
+    }
+
+    private fun decodeStatus(status:Int):String{
+        return when(status){
+            0 -> "操作成功(0)"
+            1 -> "未知错误(1)"
+            2 -> "无效的参数(2)"
+            3 -> "缺少必要的参数(3)"
+            4 -> "未连接到打印机(4)"
+            else -> "其他错误($status)"
         }
     }
 
