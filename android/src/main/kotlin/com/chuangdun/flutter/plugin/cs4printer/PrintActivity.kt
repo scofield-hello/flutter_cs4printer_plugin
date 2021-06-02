@@ -8,6 +8,11 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,7 +34,7 @@ private const val PRINT_BROADCAST_RECEIVER = "com.lexmark.mobile.printservice.pr
 
 class PrintActivity : AppCompatActivity() {
     private var _broadcastReceiver: BroadcastReceiver? = null
-    private lateinit var _uri: Uri
+    private var _uri: Uri? = null
     private lateinit var _title:String
     private lateinit var _printerAddress: String
     private lateinit var _currentMsgId: String
@@ -76,18 +81,20 @@ class PrintActivity : AppCompatActivity() {
             return
         }else{
             _title = bannerTitle
-            _uri = Uri.parse(documentUri)
             mTitleTextView.text = _title
+            _uri = getSampleUri(documentUri)
+            Log.i(TAG, "打印文档URI:${_uri}")
+            if (_uri == null){
+                Toast.makeText(this, "找不到文件.", Toast.LENGTH_LONG).show()
+                return
+            }
             createJob()
         }
     }
-    /**
-    private fun getSampleUri(printColors: Boolean): Uri? {
+
+    private fun getSampleUri(uri:String): Uri? {
         val sharedDir = createSharedDir() ?: return null
-        val assetName = if (printColors) "pmp.pdf" else "document.pdf"
-        val file = copyAssetToDir(assetName, sharedDir) ?: return null
-        // document.pdf stored in assets folder.
-        // Use FileProvider to ensure LPUA has access to the file.
+        val file = copyAssetToDir(uri, sharedDir) ?: return null
         val app = applicationContext
         return FileProvider.getUriForFile(app, app.packageName + ".provider", file)
     }
@@ -103,12 +110,13 @@ class PrintActivity : AppCompatActivity() {
         return captureDir
     }
 
-    private fun copyAssetToDir(assetName: String, dir: String): File? {
+    private fun copyAssetToDir(uri: String, dir: String): File? {
         return try {
-            val am = assets
-            val `in` = am.open(assetName)
-            val file = File(dir, assetName)
-            val out: OutputStream = FileOutputStream(file)
+            val origin = File(URI.create(uri))
+            val `in` = FileInputStream(origin)
+            Log.i(TAG, "打印文档原文件名:${origin.name}")
+            val newFile = File(dir, origin.name)
+            val out = FileOutputStream(newFile)
             // 4k buffer
             val buffer = ByteArray(4 * 1024)
             var read: Int
@@ -118,13 +126,14 @@ class PrintActivity : AppCompatActivity() {
             out.flush()
             out.close()
             `in`.close()
-            File(dir, assetName)
+            origin.delete()
+            File(dir, origin.name)
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
-*/
+
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(_broadcastReceiver)
